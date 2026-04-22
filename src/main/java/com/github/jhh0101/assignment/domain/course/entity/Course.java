@@ -79,5 +79,13 @@ public class Course {
         if (this.startTime.isAfter(this.endTime)) {
             throw new CustomException(ErrorCode.COURSE_INVALID_PERIOD);
         }
+
+        if (request.getStatus() == CourseStatus.OPEN && this.startTime.minusDays(1).isBefore(LocalDateTime.now())) {
+            throw new CustomException(ErrorCode.INVALID_STATUS_UPDATE);
+        }
+    }
+
+    public void courseClose() {
+        this.status = CourseStatus.CLOSED;
     }
 }
