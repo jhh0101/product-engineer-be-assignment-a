@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // Course
     COURSE_INVALID_PERIOD(HttpStatus.BAD_REQUEST, "COURSE001", "종료일은 시작일보다 빠를 수 없습니다."),
+    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "COURSE002", "강의를 찾을 수 없습니다."),
+    COURSE_STATUS_CHANGE_ERROR(HttpStatus.BAD_REQUEST, "COURSE003", "모집 종료된 강의는 수정할 수 없습니다."),
+    INVALID_CAPACITY_UPDATE(HttpStatus.BAD_REQUEST, "COURSE004", "최대 인원은 현재 신청 인원보다 많아야 합니다."),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
 

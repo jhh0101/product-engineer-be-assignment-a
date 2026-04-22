@@ -1,17 +1,18 @@
 package com.github.jhh0101.assignment.course.controller;
 
-import com.github.jhh0101.assignment.domain.course.dto.CourseRequest;
+import com.github.jhh0101.assignment.domain.course.controller.CourseController;
+import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.service.CourseService;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,14 +25,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(CourseController.class)
 public class CourseCreateControllerTest {
 
     @Autowired
@@ -44,10 +43,11 @@ public class CourseCreateControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @DisplayName("강의 등록 성공 테스트")
     void courseCreate_success() throws Exception {
         LocalDateTime now = LocalDateTime.now();
 
-        CourseRequest request = new CourseRequest(
+        CourseCreateRequest request = new CourseCreateRequest(
                 "Test Title",
                 "Test Description",
                 150000,
@@ -68,7 +68,7 @@ public class CourseCreateControllerTest {
                 CourseStatus.DRAFT
         );
 
-        given(courseService.courseCreate(any(CourseRequest.class)))
+        given(courseService.courseCreate(any(CourseCreateRequest.class)))
                 .willReturn(response);
 
         String body = objectMapper.writeValueAsString(request);
@@ -87,12 +87,13 @@ public class CourseCreateControllerTest {
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.title").value("Test Title"));
 
-        then(courseService).should(times(1)).courseCreate(any(CourseRequest.class));
+        then(courseService).should(times(1)).courseCreate(any(CourseCreateRequest.class));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidDtos")
-    void courseCreate_validDto(CourseRequest requestDtos) throws Exception {
+    @DisplayName("강의 등록 Valid 에러 테스트")
+    void courseCreate_validDto(CourseCreateRequest requestDtos) throws Exception {
 
         String body = objectMapper.writeValueAsString(requestDtos);
 
@@ -108,14 +109,14 @@ public class CourseCreateControllerTest {
                 .andExpect(jsonPath("$.code").value("C001"))
                 .andExpect(jsonPath("$.validationErrors").exists());
 
-        then(courseService).should(never()).courseCreate(any(CourseRequest.class));
+        then(courseService).should(never()).courseCreate(any(CourseCreateRequest.class));
 
     }
 
-    static Stream<CourseRequest> provideInvalidDtos() {
+    static Stream<CourseCreateRequest> provideInvalidDtos() {
         LocalDateTime now = LocalDateTime.now();
         return Stream.of(
-                new CourseRequest(
+                new CourseCreateRequest(
                         null,
                         "Test Description",
                         150000,
@@ -123,7 +124,7 @@ public class CourseCreateControllerTest {
                         now,
                         now.plusMonths(5)
                 ),
-                new CourseRequest(
+                new CourseCreateRequest(
                         "",
                         "Test Description",
                         150000,
@@ -131,7 +132,7 @@ public class CourseCreateControllerTest {
                         now,
                         now.plusMonths(5)
                 ),
-                new CourseRequest(
+                new CourseCreateRequest(
                         " ",
                         "Test Description",
                         -150000,
@@ -139,7 +140,7 @@ public class CourseCreateControllerTest {
                         now,
                         now.plusMonths(5)
                 ),
-                new CourseRequest(
+                new CourseCreateRequest(
                         "Test Title",
                         "Test Description",
                         -150000,
@@ -147,7 +148,7 @@ public class CourseCreateControllerTest {
                         now,
                         now.plusMonths(5)
                 ),
-                new CourseRequest(
+                new CourseCreateRequest(
                         "Test Title",
                         "Test Description",
                         150000,
@@ -155,7 +156,7 @@ public class CourseCreateControllerTest {
                         now,
                         now.plusMonths(5)
                 ),
-                new CourseRequest(
+                new CourseCreateRequest(
                         "Test Title",
                         "Test Description",
                         150000,
@@ -167,10 +168,11 @@ public class CourseCreateControllerTest {
     }
 
     @Test
+    @DisplayName("강의 등록 시작 날짜 검증 에러 테스트")
     void courseCreate_startTime_Period() throws Exception {
         LocalDateTime now = LocalDateTime.now();
 
-        CourseRequest request = new CourseRequest(
+        CourseCreateRequest request = new CourseCreateRequest(
                 "Test Title",
                 "Test Description",
                 150000,
@@ -182,7 +184,7 @@ public class CourseCreateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.COURSE_INVALID_PERIOD))
-                .given(courseService).courseCreate(any(CourseRequest.class));
+                .given(courseService).courseCreate(any(CourseCreateRequest.class));
 
         mockMvc.perform(post("/api/course")
                         .contentType(MediaType.APPLICATION_JSON)

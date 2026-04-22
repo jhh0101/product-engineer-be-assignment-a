@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseRequest {
+public class CourseCreateRequest {
     @Schema(description = "강의 제목", example = "JAVA SpringBoot")
     @NotBlank(message = "강의 제목을 입력해주세요.")
     private String title;
