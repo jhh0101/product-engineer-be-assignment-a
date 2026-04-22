@@ -206,4 +206,40 @@ public class CourseUpdateServiceTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_CAPACITY_UPDATE);
     }
+
+    @Test
+    @DisplayName("강의 수정 실패 테스트 - 시작 시간 24시간 미만 시 OPEN 변경 불가")
+    void updateStatusToOpen_Fail_WhenStartTimeWithin24Hours() {
+        LocalDateTime now = LocalDateTime.now();
+
+        Course testCourse2 = new Course(
+                1L,
+                "Test Title",
+                "Test Description",
+                150000,
+                100,
+                50,
+                now.minusDays(1),
+                now.plusDays(1),
+                CourseStatus.DRAFT
+        );
+
+        given(courseRepository.findById(1L))
+                .willReturn(Optional.of(testCourse2));
+
+        CourseUpdateRequest request = new CourseUpdateRequest(
+                null,
+                "Test Description",
+                250000,
+                100,
+                now.minusDays(1),
+                now.plusDays(1),
+                CourseStatus.OPEN
+        );
+
+        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+                .isInstanceOf(CustomException.class)
+                .extracting("errorCode")
+                .isEqualTo(ErrorCode.INVALID_STATUS_UPDATE);
+    }
 }

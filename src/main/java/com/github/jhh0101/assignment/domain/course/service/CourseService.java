@@ -5,10 +5,13 @@ import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
+import com.github.jhh0101.assignment.domain.course.repository.CourseListCondition;
 import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,5 +51,20 @@ public class CourseService {
         course.courseUpdate(request);
 
         return CourseResponse.from(course);
+    }
+
+    @Transactional
+    public Page<CourseResponse> courseList(CourseListCondition condition, Pageable pageable) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Course> courses = courseRepository.courseListSearch(condition, now, pageable);
+
+        courses.getContent().forEach(course -> {
+            if (course.getStatus() == CourseStatus.OPEN && course.getStartTime().minusDays(1).isBefore(now)) {
+                course.courseClose();
+            }
+        });
+
+        return courses.map(CourseResponse::from);
     }
 }
