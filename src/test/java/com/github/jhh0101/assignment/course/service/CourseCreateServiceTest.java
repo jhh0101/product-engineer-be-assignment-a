@@ -1,6 +1,6 @@
 package com.github.jhh0101.assignment.course.service;
 
-import com.github.jhh0101.assignment.domain.course.dto.CourseRequest;
+import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -39,7 +38,7 @@ public class CourseCreateServiceTest {
     void courseCreate_success() {
         LocalDateTime now = LocalDateTime.now();
 
-        CourseRequest request = new CourseRequest(
+        CourseCreateRequest request = new CourseCreateRequest(
                 "Test Title",
                 "Test Description",
                 150000,
@@ -77,7 +76,7 @@ public class CourseCreateServiceTest {
     void courseCreate_startTime_Period() {
         LocalDateTime now = LocalDateTime.now();
 
-        CourseRequest request = new CourseRequest(
+        CourseCreateRequest request = new CourseCreateRequest(
                 "Test Title",
                 "Test Description",
                 150000,

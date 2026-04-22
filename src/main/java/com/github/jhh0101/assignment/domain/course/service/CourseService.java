@@ -1,7 +1,8 @@
 package com.github.jhh0101.assignment.domain.course.service;
 
-import com.github.jhh0101.assignment.domain.course.dto.CourseRequest;
+import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
+import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
@@ -15,11 +16,12 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CourseService {
     private final CourseRepository courseRepository;
 
-    public CourseResponse courseCreate(CourseRequest request) {
+    @Transactional
+    public CourseResponse courseCreate(CourseCreateRequest request) {
         Course course = Course.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -36,5 +38,15 @@ public class CourseService {
         }
 
         return CourseResponse.from(courseRepository.save(course));
+    }
+
+    @Transactional
+    public CourseResponse courseUpdate(Long courseId, CourseUpdateRequest request) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
+
+        course.courseUpdate(request);
+
+        return CourseResponse.from(course);
     }
 }
