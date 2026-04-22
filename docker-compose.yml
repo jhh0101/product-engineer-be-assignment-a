@@ -6,6 +6,8 @@ services:
     networks:
       - BE-A
     restart: always
+    ports:
+      - "6379:6379"
 
   mysql:
     image: mysql:8.0
