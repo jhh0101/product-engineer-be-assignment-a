@@ -118,7 +118,8 @@ public class CourseUpdateControllerTest {
                     System.out.println("TEST 결과 : ");
                 })
                 .andDo(print())
-                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("COURSE001"));
     }
 
@@ -149,7 +150,8 @@ public class CourseUpdateControllerTest {
                     System.out.println("TEST 결과 : ");
                 })
                 .andDo(print())
-                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("COURSE002"));
     }
 
@@ -180,7 +182,8 @@ public class CourseUpdateControllerTest {
                     System.out.println("TEST 결과 : ");
                 })
                 .andDo(print())
-                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("COURSE003"));
     }
 
@@ -211,7 +214,8 @@ public class CourseUpdateControllerTest {
                     System.out.println("TEST 결과 : ");
                 })
                 .andDo(print())
-                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("COURSE004"));
     }
 }

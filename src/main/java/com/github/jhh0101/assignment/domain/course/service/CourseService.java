@@ -1,6 +1,7 @@
 package com.github.jhh0101.assignment.domain.course.service;
 
 import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
+import com.github.jhh0101.assignment.domain.course.dto.CourseDetailResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
@@ -66,5 +67,12 @@ public class CourseService {
         });
 
         return courses.map(CourseResponse::from);
+    }
+
+    public CourseDetailResponse courseDetail(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
+
+        return CourseDetailResponse.from(course);
     }
 }

@@ -1,6 +1,7 @@
 package com.github.jhh0101.assignment.domain.course.controller;
 
 import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
+import com.github.jhh0101.assignment.domain.course.dto.CourseDetailResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
 import com.github.jhh0101.assignment.domain.course.repository.CourseListCondition;
@@ -49,5 +50,14 @@ public class CourseController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("강의 리스트 조회 성공", responses));
+    }
+
+    @Operation(summary = "강의 상세 조회", description = "강의 상세 내용을 조회합니다.")
+    @GetMapping("/{courseId}")
+    public ResponseEntity<ApiResponse<CourseDetailResponse>> courseDetail(@PathVariable Long courseId) {
+        CourseDetailResponse response = courseService.courseDetail(courseId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("강의 상세 조회 성공", response));
     }
 }
