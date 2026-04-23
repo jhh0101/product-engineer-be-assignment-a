@@ -88,4 +88,8 @@ public class Course {
     public void courseClose() {
         this.status = CourseStatus.CLOSED;
     }
+
+    public void addStudent() {
+        this.currentCapacity++;
+    }
 }

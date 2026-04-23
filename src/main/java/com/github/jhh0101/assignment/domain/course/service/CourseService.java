@@ -1,9 +1,6 @@
 package com.github.jhh0101.assignment.domain.course.service;
 
-import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
-import com.github.jhh0101.assignment.domain.course.dto.CourseDetailResponse;
-import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
-import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
+import com.github.jhh0101.assignment.domain.course.dto.*;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.repository.CourseListCondition;
@@ -11,6 +8,7 @@ import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +21,7 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 public class CourseService {
     private final CourseRepository courseRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CourseResponse courseCreate(CourseCreateRequest request) {
@@ -50,6 +49,12 @@ public class CourseService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
 
         course.courseUpdate(request);
+
+        if (course.getStatus() == CourseStatus.OPEN) {
+            eventPublisher.publishEvent(new CourseOpenedEvent(courseId, course.getMaxCapacity() - course.getCurrentCapacity()));
+        } else {
+            eventPublisher.publishEvent(new CourseClosedEvent(courseId));
+        }
 
         return CourseResponse.from(course);
     }
