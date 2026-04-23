@@ -107,7 +107,7 @@ public class CourseCreateControllerTest {
                 })
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("C001"))
                 .andExpect(jsonPath("$.validationErrors").exists());
 
@@ -195,7 +195,8 @@ public class CourseCreateControllerTest {
                     System.out.println("TEST 결과 : ");
                 })
                 .andDo(print())
-                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("COURSE001"));
     }
 }
