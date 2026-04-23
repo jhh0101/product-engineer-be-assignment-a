@@ -13,6 +13,9 @@ public enum ErrorCode {
     COURSE_STATUS_CHANGE_ERROR(HttpStatus.BAD_REQUEST, "COURSE003", "모집 종료된 강의는 수정할 수 없습니다."),
     INVALID_CAPACITY_UPDATE(HttpStatus.BAD_REQUEST, "COURSE004", "최대 인원은 현재 신청 인원보다 많아야 합니다."),
     INVALID_STATUS_UPDATE(HttpStatus.BAD_REQUEST, "COURSE004", "최대 인원은 현재 신청 인원보다 많아야 합니다."),
+    NOT_OPEN_COURSE(HttpStatus.BAD_REQUEST, "COURSE005", "현재 강의는 수강 신청 기간이 아닙니다."),
+    ALREADY_ENROLLED(HttpStatus.BAD_REQUEST, "COURSE006", "이미 수강 신청한 강의입니다."),
+    CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "COURSE007", "수강 신청 인원이 초과되었습니다."),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
 
