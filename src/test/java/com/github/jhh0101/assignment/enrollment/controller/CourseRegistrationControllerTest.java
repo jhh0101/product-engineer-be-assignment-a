@@ -33,9 +33,6 @@ public class CourseRegistrationControllerTest {
     @MockitoBean
     EnrollmentService enrollmentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     @DisplayName("수강 신청 성공 테스트")
     void courseRegistration_success() throws Exception {
