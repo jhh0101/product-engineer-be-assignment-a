@@ -6,6 +6,7 @@ import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrol
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,23 +31,51 @@ public class EnrollmentService {
     @Transactional
     @CheckCourseCapacity(key = "#courseId")
     public EnrollmentRegistrationResponse courseRegistration(Long userId, Long courseId) {
-        if (enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)) {
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
+                .orElse(null);
+
+        if (enrollment != null && enrollment.getStatus() != EnrollmentStatus.CANCELLED) {
             throw new CustomException(ErrorCode.ALREADY_ENROLLED);
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        if (enrollment != null) {
+            enrollment.reEnroll();
+        } else {
+            enrollment = Enrollment.builder()
+                    .userId(userId)
+                    .courseId(courseId)
+                    .status(EnrollmentStatus.PENDING)
+                    .build();
+            enrollmentRepository.save(enrollment);
+        }
 
         courseClient.addStudent(courseId);
 
-        Enrollment enrollment = Enrollment.builder()
-                .userId(userId)
-                .courseId(courseId)
-                .enrolledAt(now)
-                .status(EnrollmentStatus.PENDING)
-                .build();
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
+        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
 
-        return EnrollmentRegistrationResponse.from(enrollmentRepository.save(enrollment), userResponse, courseResponse);
+        return EnrollmentRegistrationResponse.from(enrollment, userResponse, courseResponse);
+    }
+
+    @Transactional
+    public EnrollmentConfirmedResponse enrollmentConfirmed(Long userId, Long enrollmentId) {
+
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENROLLMENT_NOT_FOUND));
+
+        if (!enrollment.getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.USER_FORBIDDEN_ACCESS);
+        }
+
+        if (enrollment.getStatus() != EnrollmentStatus.PENDING) {
+            throw new CustomException(ErrorCode.ENROLLMENT_NOT_PENDING);
+        }
+
+        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
+
+        enrollment.enrollmentConfirmed();
+
+        return EnrollmentConfirmedResponse.from(enrollment, userResponse, courseResponse);
     }
 }
