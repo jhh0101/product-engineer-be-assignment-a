@@ -17,7 +17,11 @@ public enum ErrorCode {
     ALREADY_ENROLLED(HttpStatus.BAD_REQUEST, "COURSE006", "이미 수강 신청한 강의입니다."),
     CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "COURSE007", "수강 신청 인원이 초과되었습니다."),
 
+    ENROLLMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ENROLLMENT001", "해당 수강 신청 정보를 찾을 수 없습니다."),
+    ENROLLMENT_NOT_PENDING(HttpStatus.BAD_REQUEST, "ENROLLMENT002", "해당 강의는 이미 신청하거나 취소된 상태입니다."),
+
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
+    USER_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "U002", "사용자가 일치하지 않습니다."),
 
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력 값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S999", "서버 내부 오류가 발생했습니다.");

@@ -1,5 +1,6 @@
 package com.github.jhh0101.assignment.domain.enrollment.controller;
 
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
 import com.github.jhh0101.assignment.domain.enrollment.service.EnrollmentService;
 import com.github.jhh0101.assignment.global.response.ApiResponse;
@@ -17,12 +18,21 @@ import org.springframework.web.bind.annotation.*;
 public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
-    @Operation(summary = "강의 수강 신청", description = "사용자(userId)와 신청할 강의(courseId)를 받아서 수강 신청을 합니다..")
+    @Operation(summary = "강의 수강 신청", description = "사용자(userId)와 신청할 강의(courseId)를 받아서 수강 신청을 합니다.")
     @PostMapping("/{courseId}")
     public ResponseEntity<ApiResponse<EnrollmentRegistrationResponse>> courseRegistration(@RequestParam Long userId, @PathVariable Long courseId) {
         EnrollmentRegistrationResponse response = enrollmentService.courseRegistration(userId, courseId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("수강 신청 성공", response));
+    }
+
+    @Operation(summary = "강의 결제 확정", description = "사용자(userId)와 결제 확정할 강의(enrollmentId)를 받아서 결제를 확정 합니다.")
+    @PatchMapping("/{enrollmentId}")
+    public ResponseEntity<ApiResponse<EnrollmentConfirmedResponse>> enrollmentConfirmed(@RequestParam Long userId, @PathVariable Long enrollmentId) {
+        EnrollmentConfirmedResponse response = enrollmentService.enrollmentConfirmed(userId, enrollmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("강의 결제 확정 성공", response));
     }
 }

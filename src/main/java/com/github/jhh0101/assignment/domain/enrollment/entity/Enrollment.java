@@ -29,4 +29,12 @@ public class Enrollment {
     @Column(name = "enrolled_at")
     private LocalDateTime enrolledAt;
 
+    public void enrollmentConfirmed() {
+        this.enrolledAt = LocalDateTime.now();
+        this.status = EnrollmentStatus.CONFIRMED;
+    }
+
+    public void reEnroll() {
+        this.status = EnrollmentStatus.PENDING;
+    }
 }

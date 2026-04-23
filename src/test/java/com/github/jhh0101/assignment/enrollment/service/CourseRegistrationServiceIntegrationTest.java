@@ -6,6 +6,9 @@ import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrol
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
+import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
+import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
 import com.github.jhh0101.assignment.domain.enrollment.service.EnrollmentService;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
@@ -20,6 +23,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -104,13 +109,21 @@ public class CourseRegistrationServiceIntegrationTest {
     void courseRegistration_fail_rollback() {
         Long courseId = 1L;
         Long userId = 1L;
-        String key = "course:capacity:" + courseId;
+        String key = "course:maxCapacity:" + courseId;
+
+        Enrollment enrollment = new Enrollment(
+                1L,
+                userId,
+                courseId,
+                EnrollmentStatus.CONFIRMED,
+                null
+        );
 
         given(courseClient.getCourseResponse(courseId))
                 .willReturn(CourseEnrollmentResponse.builder().maxCapacity(30).status(CourseStatus.OPEN).build());
 
-        given(enrollmentRepository.existsByUserIdAndCourseId(userId, courseId))
-                .willReturn(true);
+        given(enrollmentRepository.findByUserIdAndCourseId(userId, courseId))
+                .willReturn(Optional.of(enrollment));
 
         given(userClient.getUserResponse(anyLong()))
                 .willReturn(UserEnrollmentResponse.builder().name("테스트유저").build());
