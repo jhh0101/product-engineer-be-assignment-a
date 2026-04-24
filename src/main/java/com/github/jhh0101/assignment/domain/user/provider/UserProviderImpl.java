@@ -1,7 +1,8 @@
 package com.github.jhh0101.assignment.domain.user.provider;
 
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.user.entity.User;
 import com.github.jhh0101.assignment.domain.user.repository.UserRepository;
 import com.github.jhh0101.assignment.global.error.CustomException;
@@ -18,19 +19,19 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserProviderImpl implements UserEnrollmentClient {
+public class UserProviderImpl implements UserEnrollmentClient, UserCourseClient {
     private final UserRepository userRepository;
 
     @Override
-    public UserEnrollmentResponse getUserResponse(Long userId) {
+    public UserInfoResponse getUserResponse(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        return UserEnrollmentResponse.from(user);
+        return UserInfoResponse.from(user);
     }
 
     @Override
-    public Map<Long, UserEnrollmentResponse> getUserResponses(List<Long> userIds) {
+    public Map<Long, UserInfoResponse> getUserResponses(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -44,7 +45,33 @@ public class UserProviderImpl implements UserEnrollmentClient {
         return users.stream()
                 .collect(Collectors.toMap(
                         User::getId,
-                        UserEnrollmentResponse::from
+                        UserInfoResponse::from
+                ));
+    }
+    @Override
+    public UserInfoResponse getUserCourseResponse(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return UserInfoResponse.from(user);
+    }
+
+    @Override
+    public Map<Long, UserInfoResponse> getUserCourseResponses(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<User> users = userRepository.findAllByIdIn(userIds);
+
+        if (users.isEmpty()) {
+            throw new CustomException(ErrorCode.COURSE_NOT_FOUND);
+        }
+
+        return users.stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        UserInfoResponse::from
                 ));
     }
 }

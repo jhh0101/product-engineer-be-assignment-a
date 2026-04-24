@@ -1,11 +1,10 @@
 package com.github.jhh0101.assignment.domain.enrollment.service;
 
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.aop.CheckCourseCapacity;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentListResponse;
@@ -58,7 +57,7 @@ public class EnrollmentService {
         courseClient.addStudent(courseId);
 
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
 
         return EnrollmentRegistrationResponse.from(enrollment, userResponse, courseResponse);
     }
@@ -77,7 +76,7 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.ENROLLMENT_NOT_PENDING);
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
 
         enrollment.enrollmentConfirmed();
@@ -104,7 +103,7 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.REFUND_PERIOD_EXPIRED);
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
 
         enrollment.enrollmentCancelled();
@@ -120,7 +119,7 @@ public class EnrollmentService {
             return Page.empty(enrollments.getPageable());
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
 
         List<Long> courseIds = enrollments.stream()
                 .map(Enrollment::getCourseId)
@@ -136,7 +135,7 @@ public class EnrollmentService {
     }
 
     public Page<EnrollmentListResponse> userEnrollmentList(Long userId, Long courseId, Pageable pageable) {
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
 
         if (userResponse.getRole() != Role.CREATOR) {
             throw new CustomException(ErrorCode.USER_NOT_CREATOR);
@@ -160,11 +159,11 @@ public class EnrollmentService {
                 .toList();
 
         Map<Long, CourseEnrollmentResponse> courseMap = courseClient.getCourseResponses(courseIds);
-        Map<Long, UserEnrollmentResponse> userMap = userClient.getUserResponses(userIds);
+        Map<Long, UserInfoResponse> userMap = userClient.getUserResponses(userIds);
 
         return enrollments.map(enrollment -> {
             CourseEnrollmentResponse courseMapResponse = courseMap.get(enrollment.getCourseId());
-            UserEnrollmentResponse userMapResponse = userMap.get(enrollment.getUserId());
+            UserInfoResponse userMapResponse = userMap.get(enrollment.getUserId());
             return EnrollmentListResponse.from(enrollment, userMapResponse, courseMapResponse);
         });
     }

@@ -1,5 +1,6 @@
 package com.github.jhh0101.assignment.course.service;
 
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
@@ -7,6 +8,8 @@ import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
 import com.github.jhh0101.assignment.domain.course.service.CourseService;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,6 +41,12 @@ public class CourseUpdateServiceTest {
     @InjectMocks
     CourseService courseService;
 
+    @Mock
+    private UserCourseClient userCourseClient;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     private Course testCourse;
 
     @BeforeEach
@@ -44,6 +54,7 @@ public class CourseUpdateServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         testCourse = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -63,18 +74,22 @@ public class CourseUpdateServiceTest {
                 .willReturn(Optional.of(testCourse));
 
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         CourseUpdateRequest request = new CourseUpdateRequest(
                 null,
                 "Test Description",
                 250000,
                 50,
-                now,
+                now.plusDays(5),
                 now.plusMonths(5),
                 CourseStatus.OPEN
         );
 
-        CourseResponse response = courseService.courseUpdate(1L, request);
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        CourseResponse response = courseService.courseUpdate(userId, 1L, request);
 
         assertThat(response).isNotNull();
         assertThat(response.getId()).isEqualTo(1L);
@@ -94,6 +109,7 @@ public class CourseUpdateServiceTest {
                 .willReturn(Optional.of(testCourse));
 
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         CourseUpdateRequest request = new CourseUpdateRequest(
                 null,
@@ -105,7 +121,10 @@ public class CourseUpdateServiceTest {
                 CourseStatus.OPEN
         );
 
-        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        assertThatThrownBy(() -> courseService.courseUpdate(userId, 1L, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.COURSE_INVALID_PERIOD);
@@ -118,6 +137,7 @@ public class CourseUpdateServiceTest {
                 .willReturn(Optional.empty());
 
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         CourseUpdateRequest request = new CourseUpdateRequest(
                 null,
@@ -129,7 +149,10 @@ public class CourseUpdateServiceTest {
                 CourseStatus.OPEN
         );
 
-        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        assertThatThrownBy(() -> courseService.courseUpdate(userId,1L, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.COURSE_NOT_FOUND);
@@ -139,8 +162,10 @@ public class CourseUpdateServiceTest {
     @DisplayName("강의 수정 실패 테스트 - 강의 상태 변경 불가")
     void courseUpdate_status_change_error() {
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         Course testCourse2 = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -165,7 +190,10 @@ public class CourseUpdateServiceTest {
                 CourseStatus.OPEN
         );
 
-        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        assertThatThrownBy(() -> courseService.courseUpdate(userId, 1L, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.COURSE_STATUS_CHANGE_ERROR);
@@ -175,8 +203,10 @@ public class CourseUpdateServiceTest {
     @DisplayName("강의 수정 실패 테스트 - 수강자 최대 인원 변경 불가")
     void courseUpdate_invalid_maxCapacity() {
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         Course testCourse2 = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -201,7 +231,10 @@ public class CourseUpdateServiceTest {
                 null
         );
 
-        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        assertThatThrownBy(() -> courseService.courseUpdate(userId, 1L, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_CAPACITY_UPDATE);
@@ -211,8 +244,10 @@ public class CourseUpdateServiceTest {
     @DisplayName("강의 수정 실패 테스트 - 시작 시간 24시간 미만 시 OPEN 변경 불가")
     void updateStatusToOpen_Fail_WhenStartTimeWithin24Hours() {
         LocalDateTime now = LocalDateTime.now();
+        Long userId = 1L;
 
         Course testCourse2 = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -237,7 +272,10 @@ public class CourseUpdateServiceTest {
                 CourseStatus.OPEN
         );
 
-        assertThatThrownBy(() -> courseService.courseUpdate(1L, request))
+        given(userCourseClient.getUserCourseResponse(userId))
+                .willReturn(UserInfoResponse.builder().id(userId).role(Role.CREATOR).name("Test Name").build());
+
+        assertThatThrownBy(() -> courseService.courseUpdate(userId, 1L, request))
                 .isInstanceOf(CustomException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.INVALID_STATUS_UPDATE);

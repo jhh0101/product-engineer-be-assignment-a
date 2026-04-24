@@ -27,8 +27,8 @@ public class CourseController {
 
     @Operation(summary = "새로운 강의 생성", description = "강의 정보를 입력받아 생성합니다.")
     @PostMapping("")
-    public ResponseEntity<ApiResponse<CourseResponse>> courseCreate(@Valid @RequestBody CourseCreateRequest request) {
-        CourseResponse response = courseService.courseCreate(request);
+    public ResponseEntity<ApiResponse<CourseResponse>> courseCreate(@RequestParam Long userId, @Valid @RequestBody CourseCreateRequest request) {
+        CourseResponse response = courseService.courseCreate(userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("강의 등록 성공", response));
@@ -36,8 +36,8 @@ public class CourseController {
 
     @Operation(summary = "기존 강의 수정", description = "강의 정보를 입력받아 수정합니다.")
     @PatchMapping("/{courseId}")
-    public ResponseEntity<ApiResponse<CourseResponse>> courseUpdate(@PathVariable Long courseId, @RequestBody CourseUpdateRequest request) {
-        CourseResponse response = courseService.courseUpdate(courseId, request);
+    public ResponseEntity<ApiResponse<CourseResponse>> courseUpdate(@RequestParam Long userId, @PathVariable Long courseId, @RequestBody CourseUpdateRequest request) {
+        CourseResponse response = courseService.courseUpdate(userId, courseId, request);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("강의 수정 성공", response));

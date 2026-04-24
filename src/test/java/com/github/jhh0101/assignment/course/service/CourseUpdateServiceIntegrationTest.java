@@ -1,11 +1,15 @@
 package com.github.jhh0101.assignment.course.service;
 
 import com.github.jhh0101.assignment.config.TestRedisConfig;
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.dto.CourseUpdateRequest;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
 import com.github.jhh0101.assignment.domain.course.service.CourseService;
+import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
@@ -29,6 +34,12 @@ public class CourseUpdateServiceIntegrationTest {
 
     @MockitoBean
     private CourseRepository courseRepository;
+
+    @MockitoBean
+    private UserCourseClient userCourseClient;
+
+    @MockitoBean
+    private UserEnrollmentClient userEnrollmentClient;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -44,6 +55,7 @@ public class CourseUpdateServiceIntegrationTest {
         LocalDateTime now = LocalDateTime.now();
 
         Course testCourse = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -68,7 +80,10 @@ public class CourseUpdateServiceIntegrationTest {
                 CourseStatus.OPEN
         );
 
-        courseService.courseUpdate(testCourse.getId(), request);
+        given(userCourseClient.getUserCourseResponse(anyLong()))
+                .willReturn(UserInfoResponse.builder().role(Role.CREATOR).name("Test Name").build());
+
+        courseService.courseUpdate(testCourse.getCreatorId(), testCourse.getId(), request);
 
         String redisKey = "course:maxCapacity:" + testCourse.getId();
         String savedCapacity = redisTemplate.opsForValue().get(redisKey);
@@ -83,6 +98,7 @@ public class CourseUpdateServiceIntegrationTest {
         LocalDateTime now = LocalDateTime.now();
 
         Course testCourse = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -107,7 +123,10 @@ public class CourseUpdateServiceIntegrationTest {
                 null
         );
 
-        courseService.courseUpdate(testCourse.getId(), request);
+        given(userCourseClient.getUserCourseResponse(anyLong()))
+                .willReturn(UserInfoResponse.builder().role(Role.CREATOR).name("Test Name").build());
+
+        courseService.courseUpdate(testCourse.getCreatorId(), testCourse.getId(), request);
 
         String redisKey = "course:maxCapacity:" + testCourse.getId();
         String savedCapacity = redisTemplate.opsForValue().get(redisKey);
@@ -121,6 +140,7 @@ public class CourseUpdateServiceIntegrationTest {
         LocalDateTime now = LocalDateTime.now();
 
         Course testCourse = new Course(
+                1L,
                 1L,
                 "Test Title",
                 "Test Description",
@@ -145,10 +165,13 @@ public class CourseUpdateServiceIntegrationTest {
                 CourseStatus.CLOSED
         );
 
+        given(userCourseClient.getUserCourseResponse(anyLong()))
+                .willReturn(UserInfoResponse.builder().role(Role.CREATOR).name("Test Name").build());
+
         String redisKey = "course:maxCapacity:" + testCourse.getId();
         redisTemplate.opsForValue().set(redisKey, String.valueOf(testCourse.getMaxCapacity() - testCourse.getCurrentCapacity()));
 
-        courseService.courseUpdate(testCourse.getId(), request);
+        courseService.courseUpdate(testCourse.getCreatorId(), testCourse.getId(), request);
 
         String closedCapacity = redisTemplate.opsForValue().get(redisKey);
 

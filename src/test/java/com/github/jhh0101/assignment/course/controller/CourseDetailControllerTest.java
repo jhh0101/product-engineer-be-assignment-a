@@ -58,7 +58,8 @@ public class CourseDetailControllerTest {
                 20,
                 now,
                 now.plusMonths(5),
-                CourseStatus.DRAFT
+                CourseStatus.DRAFT,
+                "test Creator"
         );
 
         given(courseService.courseDetail(any(Long.class)))

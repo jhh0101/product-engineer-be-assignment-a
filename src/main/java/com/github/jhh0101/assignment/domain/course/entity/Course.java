@@ -20,6 +20,9 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "creator_id")
+    private Long creatorId;
+
     @Column(name = "title")
     private String title;
 

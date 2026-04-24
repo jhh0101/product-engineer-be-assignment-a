@@ -1,9 +1,7 @@
 package com.github.jhh0101.assignment.enrollment.controller;
 
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.controller.EnrollmentController;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
@@ -12,7 +10,6 @@ import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;

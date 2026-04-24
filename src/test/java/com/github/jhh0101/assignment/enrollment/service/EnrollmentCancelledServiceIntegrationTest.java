@@ -2,22 +2,18 @@ package com.github.jhh0101.assignment.enrollment.service;
 
 import com.github.jhh0101.assignment.config.TestRedisConfig;
 import com.github.jhh0101.assignment.domain.course.dto.EnrollmentCancelledEvent;
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
 import com.github.jhh0101.assignment.domain.enrollment.service.EnrollmentService;
-import com.github.jhh0101.assignment.global.error.ErrorCode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,7 +23,6 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,7 +75,7 @@ public class EnrollmentCancelledServiceIntegrationTest {
                 .willReturn(CourseEnrollmentResponse.builder().maxCapacity(40).currentCapacity(0).build());
 
         given(userClient.getUserResponse(anyLong()))
-                .willReturn(UserEnrollmentResponse.builder().name("Test Name").build());
+                .willReturn(UserInfoResponse.builder().name("Test Name").build());
 
         redisTemplate.opsForValue().set("course:maxCapacity:1", "30");
     }

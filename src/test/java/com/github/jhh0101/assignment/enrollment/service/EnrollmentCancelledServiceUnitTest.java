@@ -1,13 +1,10 @@
 package com.github.jhh0101.assignment.enrollment.service;
 
-import com.github.jhh0101.assignment.domain.course.entity.Course;
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
-import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
@@ -75,7 +72,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .willReturn(Optional.of(spyEnrollment));
 
         given(userClient.getUserResponse(userId))
-                .willReturn(UserEnrollmentResponse.builder().id(userId).name("Test Name").build());
+                .willReturn(UserInfoResponse.builder().id(userId).name("Test Name").build());
 
         given(courseClient.getCourseResponse(anyLong()))
                 .willReturn(CourseEnrollmentResponse.builder().id(courseId).title("Test Title").build());

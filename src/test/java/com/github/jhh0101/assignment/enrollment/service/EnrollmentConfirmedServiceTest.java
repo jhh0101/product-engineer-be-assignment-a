@@ -1,10 +1,9 @@
 package com.github.jhh0101.assignment.enrollment.service;
 
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
@@ -70,7 +69,7 @@ public class EnrollmentConfirmedServiceTest {
                 .willReturn(Optional.of(spyEnrollment));
 
         given(userClient.getUserResponse(userId))
-                .willReturn(UserEnrollmentResponse.builder().name("Test Name").build());
+                .willReturn(UserInfoResponse.builder().name("Test Name").build());
 
         given(courseClient.getCourseResponse(anyLong()))
                 .willReturn(CourseEnrollmentResponse.builder().title("Test Title").build());

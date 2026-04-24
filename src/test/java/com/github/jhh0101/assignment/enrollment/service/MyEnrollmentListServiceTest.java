@@ -3,7 +3,7 @@ package com.github.jhh0101.assignment.enrollment.service;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentListResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class MyEnrollmentListServiceTest {
         given(enrollmentRepository.findAllByUserId(userId, pageable)).willReturn(mockPage);
 
         given(userClient.getUserResponse(userId))
-                .willReturn(UserEnrollmentResponse.builder().name("Test User").build());
+                .willReturn(UserInfoResponse.builder().name("Test User").build());
 
         Map<Long, CourseEnrollmentResponse> mockCourseMap = Map.of(
                 1L, CourseEnrollmentResponse.builder().id(1L).title("Course 1").build(),
