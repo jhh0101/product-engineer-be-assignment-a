@@ -95,7 +95,10 @@ public class CourseListControllerTest {
                 .willReturn(pageResponse);
 
         mockMvc.perform(get("/api/course")
+                        .param("page", "0")
+                        .param("size", "10")
                         .contentType(MediaType.APPLICATION_JSON))
+
                 .andDo(result -> {
                     System.out.println("TEST 결과 : ");
                 })
@@ -125,6 +128,8 @@ public class CourseListControllerTest {
                 .willReturn(pageResponse);
 
         mockMvc.perform(get("/api/course")
+                        .param("page", "0")
+                        .param("size", "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(result -> {
                     System.out.println("TEST 결과 : ");

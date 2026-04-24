@@ -8,6 +8,7 @@ import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmen
 import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentListResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
@@ -15,11 +16,14 @@ import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepo
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -106,5 +110,27 @@ public class EnrollmentService {
         courseClient.subStudent(enrollment.getCourseId());
 
         return EnrollmentCancelledResponse.from(enrollment, userResponse, courseResponse);
+    }
+
+    public Page<EnrollmentListResponse> myEnrollmentList(Long userId, Pageable pageable) {
+        Page<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId, pageable);
+
+        if (enrollments.isEmpty()) {
+            return Page.empty(enrollments.getPageable());
+        }
+
+        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+
+        List<Long> courseIds = enrollments.stream()
+                .map(Enrollment::getCourseId)
+                .distinct()
+                .toList();
+
+        Map<Long, CourseEnrollmentResponse> courseMap = courseClient.getCourseResponses(courseIds);
+
+        return enrollments.map(enrollment -> {
+            CourseEnrollmentResponse courseResponse = courseMap.get(enrollment.getCourseId());
+            return EnrollmentListResponse.from(enrollment, userResponse, courseResponse);
+        });
     }
 }
