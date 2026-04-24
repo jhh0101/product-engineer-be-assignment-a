@@ -53,8 +53,8 @@ public class EnrollmentConfirmedControllerTest {
                 .id(1L)
                 .name("Test Name")
                 .title("Test Title")
-                .status(EnrollmentStatus.CONFIRMED) // 🌟 여기서 CONFIRMED로 설정!
-                .enrolledAt(LocalDateTime.now())    // 🌟 여기서 날짜도 넣어주기!
+                .status(EnrollmentStatus.CONFIRMED)
+                .enrolledAt(LocalDateTime.now())
                 .build();
 
         given(enrollmentService.enrollmentConfirmed(userId, enrollmentId))

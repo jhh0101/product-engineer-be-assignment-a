@@ -92,7 +92,7 @@ public class EnrollmentService {
         }
 
         if (enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
-            throw new CustomException(ErrorCode.ENROLLMENT_NOT_PENDING);
+            throw new CustomException(ErrorCode.ENROLLMENT_IS_CANCELLED);
         }
 
         if (enrollment.getEnrolledAt() != null && enrollment.getEnrolledAt().plusDays(7).isBefore(now)) {

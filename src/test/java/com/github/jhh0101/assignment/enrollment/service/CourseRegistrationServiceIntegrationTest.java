@@ -70,7 +70,7 @@ public class CourseRegistrationServiceIntegrationTest {
 
         int totalRequests = 100;
 
-        redisTemplate.opsForValue().set("course:capacity:" + courseId, String.valueOf(30));
+        redisTemplate.opsForValue().set("course:maxCapacity:" + courseId, String.valueOf(30));
 
         ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(totalRequests);
@@ -116,7 +116,8 @@ public class CourseRegistrationServiceIntegrationTest {
                 userId,
                 courseId,
                 EnrollmentStatus.CONFIRMED,
-                null
+                null,
+                1L
         );
 
         given(courseClient.getCourseResponse(courseId))
@@ -146,7 +147,7 @@ public class CourseRegistrationServiceIntegrationTest {
     void courseRegistration_course_status_not_open(CourseStatus status) {
         Long courseId = 1L;
         Long userId = 1L;
-        String key = "course:capacity:" + courseId;
+        String key = "course:maxCapacity:" + courseId;
 
         given(courseClient.getCourseResponse(courseId))
                 .willReturn(CourseEnrollmentResponse.builder().maxCapacity(30).status(status).build());
