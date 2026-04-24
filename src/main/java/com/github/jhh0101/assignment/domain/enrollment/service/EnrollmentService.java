@@ -136,6 +136,7 @@ public class EnrollmentService {
 
     public Page<EnrollmentListResponse> userEnrollmentList(Long userId, Long courseId, Pageable pageable) {
         UserInfoResponse userResponse = userClient.getUserResponse(userId);
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
 
         if (userResponse.getRole() != Role.CREATOR) {
             throw new CustomException(ErrorCode.USER_NOT_CREATOR);
@@ -146,12 +147,14 @@ public class EnrollmentService {
             return Page.empty(enrollments.getPageable());
         }
 
+        if (!courseResponse.getCreatorId().equals(userId)) {
+            throw new CustomException(ErrorCode.NOT_COURSE_OWNER);
+        }
 
         List<Long> courseIds = enrollments.stream()
                 .map(Enrollment::getCourseId)
                 .distinct()
                 .toList();
-
 
         List<Long> userIds = enrollments.stream()
                 .map(Enrollment::getUserId)

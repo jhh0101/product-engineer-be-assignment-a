@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CourseEnrollmentResponse {
     private Long id;
+    private Long creatorId;
     private String title;
     private String description;
     private Integer price;
@@ -35,6 +36,7 @@ public class CourseEnrollmentResponse {
                 .startTime(entity.getStartTime())
                 .endTime(entity.getEndTime())
                 .status(entity.getStatus())
+                .creatorId(entity.getCreatorId())
                 .build();
     }
 }
