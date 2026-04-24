@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class CourseSyncScheduler implements ApplicationRunner {
     private final CourseSyncService syncService;
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelayString = "${schedules.course-sync.delay:600000}")
     public void syncRedisWithDatabase() {
         syncService.syncRedisWithDatabase();
         System.out.println("Redis 수강 인원 동기화 완료!(10분 주기)");
