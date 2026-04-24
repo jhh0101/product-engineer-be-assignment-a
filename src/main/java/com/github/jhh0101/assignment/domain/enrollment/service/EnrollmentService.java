@@ -13,6 +13,7 @@ import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistratio
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -131,6 +132,40 @@ public class EnrollmentService {
         return enrollments.map(enrollment -> {
             CourseEnrollmentResponse courseResponse = courseMap.get(enrollment.getCourseId());
             return EnrollmentListResponse.from(enrollment, userResponse, courseResponse);
+        });
+    }
+
+    public Page<EnrollmentListResponse> userEnrollmentList(Long userId, Long courseId, Pageable pageable) {
+        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+
+        if (userResponse.getRole() != Role.CREATOR) {
+            throw new CustomException(ErrorCode.USER_NOT_CREATOR);
+        }
+        Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
+
+        if (enrollments.isEmpty()) {
+            return Page.empty(enrollments.getPageable());
+        }
+
+
+        List<Long> courseIds = enrollments.stream()
+                .map(Enrollment::getCourseId)
+                .distinct()
+                .toList();
+
+
+        List<Long> userIds = enrollments.stream()
+                .map(Enrollment::getUserId)
+                .distinct()
+                .toList();
+
+        Map<Long, CourseEnrollmentResponse> courseMap = courseClient.getCourseResponses(courseIds);
+        Map<Long, UserEnrollmentResponse> userMap = userClient.getUserResponses(userIds);
+
+        return enrollments.map(enrollment -> {
+            CourseEnrollmentResponse courseMapResponse = courseMap.get(enrollment.getCourseId());
+            UserEnrollmentResponse userMapResponse = userMap.get(enrollment.getUserId());
+            return EnrollmentListResponse.from(enrollment, userMapResponse, courseMapResponse);
         });
     }
 }

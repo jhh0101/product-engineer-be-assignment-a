@@ -24,6 +24,7 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
     USER_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "U002", "사용자가 일치하지 않습니다."),
+    USER_NOT_CREATOR(HttpStatus.FORBIDDEN, "U003", "사용자가 CREATOR 권한이 없습니다."),
 
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C001", "잘못된 입력 값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S999", "서버 내부 오류가 발생했습니다.");

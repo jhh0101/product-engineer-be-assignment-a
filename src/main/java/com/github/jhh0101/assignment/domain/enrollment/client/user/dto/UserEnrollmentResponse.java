@@ -2,6 +2,7 @@ package com.github.jhh0101.assignment.domain.enrollment.client.user.dto;
 
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,12 +18,14 @@ import java.time.LocalDateTime;
 public class UserEnrollmentResponse {
     private Long id;
     private String name;
+    private Role role;
 
 
     public static UserEnrollmentResponse from(User entity){
         return UserEnrollmentResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .role(entity.getRole())
                 .build();
     }
 }
