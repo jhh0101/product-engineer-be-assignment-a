@@ -1,5 +1,6 @@
 package com.github.jhh0101.assignment.domain.enrollment.controller;
 
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
 import com.github.jhh0101.assignment.domain.enrollment.service.EnrollmentService;
@@ -28,11 +29,20 @@ public class EnrollmentController {
     }
 
     @Operation(summary = "강의 결제 확정", description = "사용자(userId)와 결제 확정할 강의(enrollmentId)를 받아서 결제를 확정 합니다.")
-    @PatchMapping("/{enrollmentId}")
+    @PatchMapping("/confirmed/{enrollmentId}")
     public ResponseEntity<ApiResponse<EnrollmentConfirmedResponse>> enrollmentConfirmed(@RequestParam Long userId, @PathVariable Long enrollmentId) {
         EnrollmentConfirmedResponse response = enrollmentService.enrollmentConfirmed(userId, enrollmentId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("강의 결제 확정 성공", response));
+    }
+
+    @Operation(summary = "강의 수강 취소", description = "사용자(userId)와 수강 취소할 강의(enrollmentId)를 받아서 수강을 취소 합니다.")
+    @PatchMapping("/cancelled/{enrollmentId}")
+    public ResponseEntity<ApiResponse<EnrollmentCancelledResponse>> enrollmentCancelled(@RequestParam Long userId, @PathVariable Long enrollmentId) {
+        EnrollmentCancelledResponse response = enrollmentService.enrollmentCancelled(userId, enrollmentId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("강의 수강 취소 성공", response));
     }
 }

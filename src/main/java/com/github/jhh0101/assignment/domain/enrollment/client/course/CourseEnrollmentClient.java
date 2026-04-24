@@ -6,4 +6,6 @@ public interface CourseEnrollmentClient {
     CourseEnrollmentResponse getCourseResponse(Long courseId);
 
     void addStudent(Long courseId);
+
+    void subStudent(Long courseId);
 }

@@ -19,6 +19,8 @@ public enum ErrorCode {
 
     ENROLLMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ENROLLMENT001", "해당 수강 신청 정보를 찾을 수 없습니다."),
     ENROLLMENT_NOT_PENDING(HttpStatus.BAD_REQUEST, "ENROLLMENT002", "해당 강의는 이미 신청하거나 취소된 상태입니다."),
+    ENROLLMENT_IS_CANCELLED(HttpStatus.BAD_REQUEST, "ENROLLMENT003", "해당 강의는 이미 취소된 상태입니다."),
+    REFUND_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "ENROLLMENT004", "환불 유효 기간이 지났습니다."),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U001", "사용자를 찾을 수 없습니다."),
     USER_FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "U002", "사용자가 일치하지 않습니다."),
