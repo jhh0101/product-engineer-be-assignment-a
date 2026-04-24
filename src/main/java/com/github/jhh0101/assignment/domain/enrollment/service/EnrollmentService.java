@@ -6,6 +6,7 @@ import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrol
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
@@ -77,5 +78,33 @@ public class EnrollmentService {
         enrollment.enrollmentConfirmed();
 
         return EnrollmentConfirmedResponse.from(enrollment, userResponse, courseResponse);
+    }
+
+    @Transactional
+    public EnrollmentCancelledResponse enrollmentCancelled(Long userId, Long enrollmentId) {
+        LocalDateTime now = LocalDateTime.now();
+
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ENROLLMENT_NOT_FOUND));
+
+        if (!enrollment.getUserId().equals(userId)) {
+            throw new CustomException(ErrorCode.USER_FORBIDDEN_ACCESS);
+        }
+
+        if (enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
+            throw new CustomException(ErrorCode.ENROLLMENT_IS_CANCELLED);
+        }
+
+        if (enrollment.getEnrolledAt() != null && enrollment.getEnrolledAt().plusDays(7).isBefore(now)) {
+            throw new CustomException(ErrorCode.REFUND_PERIOD_EXPIRED);
+        }
+
+        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
+
+        enrollment.enrollmentCancelled();
+        courseClient.subStudent(enrollment.getCourseId());
+
+        return EnrollmentCancelledResponse.from(enrollment, userResponse, courseResponse);
     }
 }

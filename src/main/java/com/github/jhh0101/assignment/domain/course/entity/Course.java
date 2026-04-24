@@ -92,4 +92,8 @@ public class Course {
     public void addStudent() {
         this.currentCapacity++;
     }
+
+    public void subStudent() {
+        this.currentCapacity--;
+    }
 }

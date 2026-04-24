@@ -29,9 +29,16 @@ public class Enrollment {
     @Column(name = "enrolled_at")
     private LocalDateTime enrolledAt;
 
+    @Version
+    private Long version;
+
     public void enrollmentConfirmed() {
         this.enrolledAt = LocalDateTime.now();
         this.status = EnrollmentStatus.CONFIRMED;
+    }
+
+    public void enrollmentCancelled() {
+        this.status = EnrollmentStatus.CANCELLED;
     }
 
     public void reEnroll() {

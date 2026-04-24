@@ -53,14 +53,14 @@ public class EnrollmentConfirmedControllerTest {
                 .id(1L)
                 .name("Test Name")
                 .title("Test Title")
-                .status(EnrollmentStatus.CONFIRMED) // 🌟 여기서 CONFIRMED로 설정!
-                .enrolledAt(LocalDateTime.now())    // 🌟 여기서 날짜도 넣어주기!
+                .status(EnrollmentStatus.CONFIRMED)
+                .enrolledAt(LocalDateTime.now())
                 .build();
 
         given(enrollmentService.enrollmentConfirmed(userId, enrollmentId))
                 .willReturn(response);
 
-        mockMvc.perform(patch("/api/enrollment/{enrollmentId}", 1L)
+        mockMvc.perform(patch("/api/enrollment/confirmed/{enrollmentId}", 1L)
                         .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(result -> {
@@ -86,7 +86,7 @@ public class EnrollmentConfirmedControllerTest {
         willThrow(new CustomException(ErrorCode.ENROLLMENT_NOT_FOUND))
                 .given(enrollmentService).enrollmentConfirmed(anyLong(), anyLong());
 
-        mockMvc.perform(patch("/api/enrollment/{enrollmentId}", 1L)
+        mockMvc.perform(patch("/api/enrollment/confirmed/{enrollmentId}", 1L)
                         .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(result -> {
@@ -104,7 +104,7 @@ public class EnrollmentConfirmedControllerTest {
         willThrow(new CustomException(ErrorCode.USER_FORBIDDEN_ACCESS))
                 .given(enrollmentService).enrollmentConfirmed(anyLong(), anyLong());
 
-        mockMvc.perform(patch("/api/enrollment/{enrollmentId}", 1L)
+        mockMvc.perform(patch("/api/enrollment/confirmed/{enrollmentId}", 1L)
                         .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(result -> {
@@ -122,7 +122,7 @@ public class EnrollmentConfirmedControllerTest {
         willThrow(new CustomException(ErrorCode.ENROLLMENT_NOT_PENDING))
                 .given(enrollmentService).enrollmentConfirmed(anyLong(), anyLong());
 
-        mockMvc.perform(patch("/api/enrollment/{enrollmentId}", 1L)
+        mockMvc.perform(patch("/api/enrollment/confirmed/{enrollmentId}", 1L)
                         .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(result -> {

@@ -53,7 +53,8 @@ public class EnrollmentConfirmedServiceTest {
                 1L,
                 1L,
                 EnrollmentStatus.PENDING,
-                null
+                null,
+                1L
         );
     }
 
@@ -141,7 +142,8 @@ public class EnrollmentConfirmedServiceTest {
                 1L,
                 1L,
                 status,
-                null
+                null,
+                1L
         );
 
         Enrollment spyEnrollment = spy(testEnrollment);
