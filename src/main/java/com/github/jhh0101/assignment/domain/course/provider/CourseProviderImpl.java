@@ -13,6 +13,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class CourseProviderImpl implements CourseEnrollmentClient {
@@ -26,6 +31,26 @@ public class CourseProviderImpl implements CourseEnrollmentClient {
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
 
         return CourseEnrollmentResponse.from(course);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, CourseEnrollmentResponse> getCourseResponses(List<Long> courseIds) {
+        if (courseIds == null || courseIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Course> courses = courseRepository.findAllByIdIn(courseIds);
+
+        if (courses.isEmpty()) {
+            throw new CustomException(ErrorCode.COURSE_NOT_FOUND);
+        }
+
+        return courses.stream()
+                .collect(Collectors.toMap(
+                        Course::getId,
+                        CourseEnrollmentResponse::from
+                ));
     }
 
     @Override

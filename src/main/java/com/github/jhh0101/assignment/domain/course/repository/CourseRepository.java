@@ -14,4 +14,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>, CourseRep
             "FROM Course c " +
             "WHERE c.status = 'OPEN'") // 오픈된 강의만 가져오는 조건 추가 추천
     List<CourseCapacityResponse> findAllActiveAvailableSeats();
+
+    List<Course> findAllByIdIn(List<Long> ids);
+
 }
