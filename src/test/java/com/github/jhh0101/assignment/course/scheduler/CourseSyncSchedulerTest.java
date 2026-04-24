@@ -4,10 +4,8 @@ import com.github.jhh0101.assignment.config.TestRedisConfig;
 import com.github.jhh0101.assignment.domain.course.service.CourseSyncService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.concurrent.TimeUnit;
@@ -18,9 +16,6 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(properties = "schedules.course-sync.delay=1000")
 @Import(TestRedisConfig.class)
 public class CourseSyncSchedulerTest {
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
 
     @MockitoBean
     private CourseSyncService syncService;
