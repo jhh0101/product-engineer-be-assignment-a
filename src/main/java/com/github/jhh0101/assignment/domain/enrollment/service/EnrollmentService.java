@@ -136,38 +136,30 @@ public class EnrollmentService {
 
     public Page<EnrollmentListResponse> userEnrollmentList(Long userId, Long courseId, Pageable pageable) {
         UserInfoResponse userResponse = userClient.getUserResponse(userId);
-        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
-
         if (userResponse.getRole() != Role.CREATOR) {
             throw new CustomException(ErrorCode.USER_NOT_CREATOR);
         }
-        Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
 
-        if (enrollments.isEmpty()) {
-            return Page.empty(enrollments.getPageable());
-        }
-
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
         if (!courseResponse.getCreatorId().equals(userId)) {
             throw new CustomException(ErrorCode.NOT_COURSE_OWNER);
         }
 
-        List<Long> courseIds = enrollments.stream()
-                .map(Enrollment::getCourseId)
-                .distinct()
-                .toList();
+        Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
+        if (enrollments.isEmpty()) {
+            return Page.empty(enrollments.getPageable());
+        }
 
         List<Long> userIds = enrollments.stream()
                 .map(Enrollment::getUserId)
                 .distinct()
                 .toList();
 
-        Map<Long, CourseEnrollmentResponse> courseMap = courseClient.getCourseResponses(courseIds);
         Map<Long, UserInfoResponse> userMap = userClient.getUserResponses(userIds);
 
         return enrollments.map(enrollment -> {
-            CourseEnrollmentResponse courseMapResponse = courseMap.get(enrollment.getCourseId());
             UserInfoResponse userMapResponse = userMap.get(enrollment.getUserId());
-            return EnrollmentListResponse.from(enrollment, userMapResponse, courseMapResponse);
+            return EnrollmentListResponse.from(enrollment, userMapResponse, courseResponse);
         });
     }
 }
