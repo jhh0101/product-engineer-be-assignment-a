@@ -1,5 +1,7 @@
 package com.github.jhh0101.assignment.domain.enrollment.service;
 
+import com.github.jhh0101.assignment.domain.course.dto.CourseClosedEvent;
+import com.github.jhh0101.assignment.domain.course.dto.EnrollmentCancelledEvent;
 import com.github.jhh0101.assignment.domain.enrollment.aop.CheckCourseCapacity;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
@@ -16,6 +18,7 @@ import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,9 +35,10 @@ public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final CourseEnrollmentClient courseClient;
     private final UserEnrollmentClient userClient;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    @CheckCourseCapacity(key = "#courseId")
+    @CheckCourseCapacity(key = "#courseId", userKey = "#userId")
     public EnrollmentRegistrationResponse courseRegistration(Long userId, Long courseId) {
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
                 .orElse(null);
@@ -103,11 +107,12 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.REFUND_PERIOD_EXPIRED);
         }
 
+        enrollment.enrollmentCancelled();
+
+        eventPublisher.publishEvent(new EnrollmentCancelledEvent(enrollment.getCourseId()));
+
         UserInfoResponse userResponse = userClient.getUserResponse(userId);
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
-
-        enrollment.enrollmentCancelled();
-        courseClient.subStudent(enrollment.getCourseId());
 
         return EnrollmentCancelledResponse.from(enrollment, userResponse, courseResponse);
     }

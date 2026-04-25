@@ -1,7 +1,6 @@
 package com.github.jhh0101.assignment.global.error;
 
 import com.github.jhh0101.assignment.global.response.ApiResponse;
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,4 +57,5 @@ public class GlobalExceptionHandler {
                         validationErrors
                 ));
     }
+
 }
