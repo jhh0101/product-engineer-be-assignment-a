@@ -58,4 +58,13 @@ public class EnrollmentController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success("내 신청 목록 조회 성공", responses));
     }
+
+    @Operation(summary = "강의별 수강생 목록 조회", description = "사용자(userId)를 받아서 모든 사용자의 수강 신청 목록을 조회합니다.(CREATOR 권한 필수)")
+    @GetMapping("/user/list/{courseId}")
+    public ResponseEntity<ApiResponse<Page<EnrollmentListResponse>>> userEnrollmentList(@RequestParam Long userId, @PathVariable Long courseId, @PageableDefault(size = 10) Pageable pageable) {
+        Page<EnrollmentListResponse> responses = enrollmentService.userEnrollmentList(userId, courseId, pageable);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success("강의별 수강생 목록 조회 성공", responses));
+    }
 }

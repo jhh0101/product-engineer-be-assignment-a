@@ -34,6 +34,7 @@ public class CourseRepositoryIntegrationTest {
 
         Course testCourseDraft = new Course(
                 null,
+                1L,
                 "Test DRAFT Title",
                 "Test Description",
                 150000,
@@ -45,6 +46,7 @@ public class CourseRepositoryIntegrationTest {
         );
         Course testCourseOpen = new Course(
                 null,
+                1L,
                 "Test OPEN Title",
                 "Test Description",
                 150000,
@@ -71,6 +73,7 @@ public class CourseRepositoryIntegrationTest {
 
         Course testCourseDraft = new Course(
                 null,
+                1L,
                 "Test DRAFT Title",
                 "Test Description",
                 150000,
@@ -82,6 +85,7 @@ public class CourseRepositoryIntegrationTest {
         );
         Course testCourseOpen = new Course(
                 null,
+                1L,
                 "Test OPEN Title",
                 "Test Description",
                 150000,
@@ -109,6 +113,7 @@ public class CourseRepositoryIntegrationTest {
 
         Course testCourseDraft = new Course(
                 null,
+                1L,
                 "Test DRAFT Title",
                 "Test Description",
                 150000,
@@ -120,6 +125,7 @@ public class CourseRepositoryIntegrationTest {
         );
         Course testCourseOpen = new Course(
                 null,
+                1L,
                 "Test CLOSED Title",
                 "Test Description",
                 150000,
@@ -131,6 +137,7 @@ public class CourseRepositoryIntegrationTest {
         );
         Course testCourseClosed = new Course(
                 null,
+                1L,
                 "Test CLOSED Title",
                 "Test Description",
                 150000,

@@ -1,28 +1,27 @@
-package com.github.jhh0101.assignment.domain.enrollment.client.user.dto;
+package com.github.jhh0101.assignment.domain.user.dto;
 
-import com.github.jhh0101.assignment.domain.course.entity.Course;
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserEnrollmentResponse {
+public class UserInfoResponse {
     private Long id;
     private String name;
+    private Role role;
 
 
-    public static UserEnrollmentResponse from(User entity){
-        return UserEnrollmentResponse.builder()
+    public static UserInfoResponse from(User entity){
+        return UserInfoResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .role(entity.getRole())
                 .build();
     }
 }

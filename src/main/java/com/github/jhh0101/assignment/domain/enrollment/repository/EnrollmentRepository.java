@@ -16,4 +16,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     Optional<Enrollment> findByUserIdAndCourseId(Long userId, Long courseId);
 
     Page<Enrollment> findAllByUserId(Long userId, Pageable pageable);
+
+    Page<Enrollment> findAllByCourseId(Long courseId, Pageable pageable);
 }

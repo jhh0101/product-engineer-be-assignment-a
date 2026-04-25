@@ -17,4 +17,8 @@ public class User {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
 }

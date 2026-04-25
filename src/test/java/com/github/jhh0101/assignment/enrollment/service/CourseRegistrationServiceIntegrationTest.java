@@ -5,8 +5,7 @@ import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
-import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistrationResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
@@ -23,7 +22,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -79,7 +77,7 @@ public class CourseRegistrationServiceIntegrationTest {
         AtomicInteger failCount = new AtomicInteger();
 
         given(userClient.getUserResponse(anyLong()))
-                .willReturn(UserEnrollmentResponse.builder().name("테스트유저").build());
+                .willReturn(UserInfoResponse.builder().name("테스트유저").build());
 
         for (int i = 1; i <= totalRequests; i++) {
             Long userId = (long) i;
@@ -127,7 +125,7 @@ public class CourseRegistrationServiceIntegrationTest {
                 .willReturn(Optional.of(enrollment));
 
         given(userClient.getUserResponse(anyLong()))
-                .willReturn(UserEnrollmentResponse.builder().name("테스트유저").build());
+                .willReturn(UserInfoResponse.builder().name("테스트유저").build());
 
         redisTemplate.opsForValue().set(key, "30");
 

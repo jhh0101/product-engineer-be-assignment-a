@@ -1,11 +1,14 @@
 package com.github.jhh0101.assignment.course.controller;
 
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.controller.CourseController;
 import com.github.jhh0101.assignment.domain.course.dto.CourseCreateRequest;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.service.CourseService;
+import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
+import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,15 +70,17 @@ public class CourseCreateControllerTest {
                 0,
                 now,
                 now.plusMonths(5),
-                CourseStatus.DRAFT
+                CourseStatus.DRAFT,
+                "test Creator"
         );
 
-        given(courseService.courseCreate(any(CourseCreateRequest.class)))
+        given(courseService.courseCreate(anyLong(), any(CourseCreateRequest.class)))
                 .willReturn(response);
 
         String body = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(post("/api/course")
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -89,7 +94,7 @@ public class CourseCreateControllerTest {
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.title").value("Test Title"));
 
-        then(courseService).should(times(1)).courseCreate(any(CourseCreateRequest.class));
+        then(courseService).should(times(1)).courseCreate(anyLong(), any(CourseCreateRequest.class));
     }
 
     @ParameterizedTest
@@ -100,6 +105,7 @@ public class CourseCreateControllerTest {
         String body = objectMapper.writeValueAsString(requestDtos);
 
         mockMvc.perform(post("/api/course")
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -109,9 +115,9 @@ public class CourseCreateControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value("C001"))
-                .andExpect(jsonPath("$.validationErrors").exists());
+                .andExpect(jsonPath("$.data").exists());
 
-        then(courseService).should(never()).courseCreate(any(CourseCreateRequest.class));
+        then(courseService).should(never()).courseCreate(anyLong(), any(CourseCreateRequest.class));
 
     }
 
@@ -186,9 +192,10 @@ public class CourseCreateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.COURSE_INVALID_PERIOD))
-                .given(courseService).courseCreate(any(CourseCreateRequest.class));
+                .given(courseService).courseCreate(anyLong(), any(CourseCreateRequest.class));
 
         mockMvc.perform(post("/api/course")
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {

@@ -63,15 +63,17 @@ public class CourseUpdateControllerTest {
                 0,
                 now,
                 now.plusMonths(5),
-                CourseStatus.OPEN
+                CourseStatus.OPEN,
+                "test Creator"
         );
 
-        given(courseService.courseUpdate(eq(1L), any(CourseUpdateRequest.class)))
+        given(courseService.courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class)))
                 .willReturn(response);
 
         String body = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(patch("/api/course/{id}", 1L)
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -88,7 +90,7 @@ public class CourseUpdateControllerTest {
                 .andExpect(jsonPath("$.data.title").value("테스트 제목"))
                 .andExpect(jsonPath("$.data.status").value("OPEN"));
 
-        then(courseService).should(times(1)).courseUpdate(eq(1L), any(CourseUpdateRequest.class));
+        then(courseService).should(times(1)).courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class));
     }
 
     @Test
@@ -109,9 +111,10 @@ public class CourseUpdateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.COURSE_INVALID_PERIOD))
-                .given(courseService).courseUpdate(eq(1L), any(CourseUpdateRequest.class));
+                .given(courseService).courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class));
 
         mockMvc.perform(patch("/api/course/{id}", 1L)
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -141,9 +144,10 @@ public class CourseUpdateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.COURSE_NOT_FOUND))
-                .given(courseService).courseUpdate(eq(1L), any(CourseUpdateRequest.class));
+                .given(courseService).courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class));
 
         mockMvc.perform(patch("/api/course/{id}", 1L)
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -173,9 +177,10 @@ public class CourseUpdateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.COURSE_STATUS_CHANGE_ERROR))
-                .given(courseService).courseUpdate(eq(1L), any(CourseUpdateRequest.class));
+                .given(courseService).courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class));
 
         mockMvc.perform(patch("/api/course/{id}", 1L)
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {
@@ -205,9 +210,10 @@ public class CourseUpdateControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new CustomException(ErrorCode.INVALID_CAPACITY_UPDATE))
-                .given(courseService).courseUpdate(eq(1L), any(CourseUpdateRequest.class));
+                .given(courseService).courseUpdate(eq(1L), eq(1L), any(CourseUpdateRequest.class));
 
         mockMvc.perform(patch("/api/course/{id}", 1L)
+                        .param("userId", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andDo(result -> {

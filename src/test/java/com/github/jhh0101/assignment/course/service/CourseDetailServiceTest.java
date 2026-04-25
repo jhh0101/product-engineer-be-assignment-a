@@ -1,5 +1,6 @@
 package com.github.jhh0101.assignment.course.service;
 
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.dto.CourseDetailResponse;
 import com.github.jhh0101.assignment.domain.course.dto.CourseResponse;
 import com.github.jhh0101.assignment.domain.course.entity.Course;
@@ -7,6 +8,8 @@ import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.course.repository.CourseListCondition;
 import com.github.jhh0101.assignment.domain.course.repository.CourseRepository;
 import com.github.jhh0101.assignment.domain.course.service.CourseService;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +43,9 @@ public class CourseDetailServiceTest {
     @InjectMocks
     CourseService courseService;
 
+    @Mock
+    private UserCourseClient userCourseClient;
+
     private Course testCourse;
 
     @BeforeEach
@@ -47,6 +53,7 @@ public class CourseDetailServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         testCourse = new Course(
+                1L,
                 1L,
                 "Test DRAFT Title",
                 "Test Description",
@@ -65,6 +72,9 @@ public class CourseDetailServiceTest {
     void courseDetail_success() {
         given(courseRepository.findById(1L))
                 .willReturn(Optional.of(testCourse));
+
+        given(userCourseClient.getUserCourseResponse(1L))
+                .willReturn(UserInfoResponse.builder().id(1L).role(Role.CREATOR).name("Test Name").build());
 
         CourseDetailResponse response = courseService.courseDetail(1L);
 

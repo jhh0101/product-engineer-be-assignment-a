@@ -62,7 +62,8 @@ public class CourseListControllerTest {
                 0,
                 now,
                 now.plusMonths(5),
-                CourseStatus.DRAFT
+                CourseStatus.DRAFT,
+                "test Creator"
         );
         CourseResponse response2 = new CourseResponse(
                 1L,
@@ -73,7 +74,8 @@ public class CourseListControllerTest {
                 0,
                 now,
                 now.plusMonths(5),
-                CourseStatus.OPEN
+                CourseStatus.OPEN,
+                "test Creator"
         );
         CourseResponse response3 = new CourseResponse(
                 1L,
@@ -84,7 +86,8 @@ public class CourseListControllerTest {
                 0,
                 now,
                 now.plusMonths(5),
-                CourseStatus.CLOSED
+                CourseStatus.CLOSED,
+                "test Creator"
         );
 
         List<CourseResponse> content = List.of(response1, response2, response3);

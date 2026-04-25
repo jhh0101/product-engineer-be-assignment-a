@@ -2,6 +2,7 @@ package com.github.jhh0101.assignment.domain.course.dto;
 
 import com.github.jhh0101.assignment.domain.course.entity.Course;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,8 +24,9 @@ public class CourseResponse {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private CourseStatus status;
+    private String creatorName;
 
-    public static CourseResponse from(Course entity){
+    public static CourseResponse from(Course entity, UserInfoResponse userResponse){
         return CourseResponse.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
@@ -35,6 +37,7 @@ public class CourseResponse {
                 .startTime(entity.getStartTime())
                 .endTime(entity.getEndTime())
                 .status(entity.getStatus())
+                .creatorName(userResponse.getName())
                 .build();
     }
 }

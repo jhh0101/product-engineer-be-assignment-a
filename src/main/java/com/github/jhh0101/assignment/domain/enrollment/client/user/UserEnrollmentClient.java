@@ -1,7 +1,11 @@
 package com.github.jhh0101.assignment.domain.enrollment.client.user;
 
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
+
+import java.util.List;
+import java.util.Map;
 
 public interface UserEnrollmentClient {
-    UserEnrollmentResponse getUserResponse(Long userId);
+    UserInfoResponse getUserResponse(Long userId);
+    Map<Long, UserInfoResponse> getUserResponses(List<Long> userIds);
 }

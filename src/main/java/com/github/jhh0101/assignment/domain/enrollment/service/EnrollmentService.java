@@ -1,11 +1,10 @@
 package com.github.jhh0101.assignment.domain.enrollment.service;
 
-import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.aop.CheckCourseCapacity;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
-import com.github.jhh0101.assignment.domain.enrollment.client.user.dto.UserEnrollmentResponse;
+import com.github.jhh0101.assignment.domain.user.dto.UserInfoResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentCancelledResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentConfirmedResponse;
 import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentListResponse;
@@ -13,6 +12,7 @@ import com.github.jhh0101.assignment.domain.enrollment.dto.EnrollmentRegistratio
 import com.github.jhh0101.assignment.domain.enrollment.entity.Enrollment;
 import com.github.jhh0101.assignment.domain.enrollment.entity.EnrollmentStatus;
 import com.github.jhh0101.assignment.domain.enrollment.repository.EnrollmentRepository;
+import com.github.jhh0101.assignment.domain.user.entity.Role;
 import com.github.jhh0101.assignment.global.error.CustomException;
 import com.github.jhh0101.assignment.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +57,7 @@ public class EnrollmentService {
         courseClient.addStudent(courseId);
 
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
 
         return EnrollmentRegistrationResponse.from(enrollment, userResponse, courseResponse);
     }
@@ -76,7 +76,7 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.ENROLLMENT_NOT_PENDING);
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
 
         enrollment.enrollmentConfirmed();
@@ -103,7 +103,7 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.REFUND_PERIOD_EXPIRED);
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
         CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
 
         enrollment.enrollmentCancelled();
@@ -119,7 +119,7 @@ public class EnrollmentService {
             return Page.empty(enrollments.getPageable());
         }
 
-        UserEnrollmentResponse userResponse = userClient.getUserResponse(userId);
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
 
         List<Long> courseIds = enrollments.stream()
                 .map(Enrollment::getCourseId)
@@ -131,6 +131,35 @@ public class EnrollmentService {
         return enrollments.map(enrollment -> {
             CourseEnrollmentResponse courseResponse = courseMap.get(enrollment.getCourseId());
             return EnrollmentListResponse.from(enrollment, userResponse, courseResponse);
+        });
+    }
+
+    public Page<EnrollmentListResponse> userEnrollmentList(Long userId, Long courseId, Pageable pageable) {
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
+        if (userResponse.getRole() != Role.CREATOR) {
+            throw new CustomException(ErrorCode.USER_NOT_CREATOR);
+        }
+
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(courseId);
+        if (!courseResponse.getCreatorId().equals(userId)) {
+            throw new CustomException(ErrorCode.NOT_COURSE_OWNER);
+        }
+
+        Page<Enrollment> enrollments = enrollmentRepository.findAllByCourseId(courseId, pageable);
+        if (enrollments.isEmpty()) {
+            return Page.empty(enrollments.getPageable());
+        }
+
+        List<Long> userIds = enrollments.stream()
+                .map(Enrollment::getUserId)
+                .distinct()
+                .toList();
+
+        Map<Long, UserInfoResponse> userMap = userClient.getUserResponses(userIds);
+
+        return enrollments.map(enrollment -> {
+            UserInfoResponse userMapResponse = userMap.get(enrollment.getUserId());
+            return EnrollmentListResponse.from(enrollment, userMapResponse, courseResponse);
         });
     }
 }
