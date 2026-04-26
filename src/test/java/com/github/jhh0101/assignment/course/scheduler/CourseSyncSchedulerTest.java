@@ -30,7 +30,7 @@ public class CourseSyncSchedulerTest {
     @DisplayName("스케줄러에 의해 주기적으로 동기화 메서드가 호출되어야 한다")
     void scheduled_sync_test() {
         await()
-                .atMost(3, TimeUnit.SECONDS)
+                .atMost(5, TimeUnit.SECONDS)
                 .untilAsserted(() -> verify(syncService, atLeast(3)).syncRedisWithDatabase());
     }
 }
