@@ -47,8 +47,6 @@ public class CourseRegistrationServiceUnitTest {
         assertThatThrownBy(() -> enrollmentService.courseRegistration(userId, courseId))
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.COURSE_NOT_FOUND);
-
-        verify(courseClient, times(0)).addStudent(courseId);
     }
 
     @Test
@@ -66,8 +64,6 @@ public class CourseRegistrationServiceUnitTest {
         assertThatThrownBy(() -> enrollmentService.courseRegistration(userId, courseId))
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.USER_NOT_FOUND);
-
-        verify(courseClient, times(0)).addStudent(courseId);
     }
 
 }

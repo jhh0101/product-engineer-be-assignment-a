@@ -1,6 +1,7 @@
 package com.github.jhh0101.assignment.enrollment.service;
 
 import com.github.jhh0101.assignment.config.TestRedisConfig;
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.dto.EnrollmentCancelledEvent;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
@@ -23,6 +24,8 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,6 +51,9 @@ public class EnrollmentCancelledServiceIntegrationTest {
 
     @MockitoBean
     private UserEnrollmentClient userClient;
+
+    @MockitoBean
+    private UserCourseClient userCourseClient;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -145,5 +151,44 @@ public class EnrollmentCancelledServiceIntegrationTest {
 
         Enrollment result = enrollmentRepository.findById(enrollmentId).orElseThrow();
         assertThat(result.getStatus()).isEqualTo(EnrollmentStatus.CANCELLED);
+    }
+
+    @Test
+    @DisplayName("대기열 자동 등록 테스트 - 수강 취소 시 대기열 1번 유저가 자동으로 수강 신청되어야 함")
+    void auto_enroll_from_waitlist_when_enrollment_cancelled() {
+        Long courseId = testEnrollment.getCourseId();
+        Long cancelUserId = testEnrollment.getUserId();
+        Long cancelEnrollmentId = testEnrollment.getId();
+        String waitlistKey = "course:waitlist:" + courseId;
+        String capacityKey = "course:maxCapacity:" + courseId;
+
+        redisTemplate.opsForValue().set(capacityKey, "0");
+
+        for (int i = 1; i <= 10; i++) {
+            Long waitUserId = 100L + i;
+            redisTemplate.opsForZSet().add(waitlistKey, String.valueOf(waitUserId), i);
+        }
+
+        assertThat(redisTemplate.opsForZSet().zCard(waitlistKey)).isEqualTo(10);
+        Set<String> firstUser = redisTemplate.opsForZSet().range(waitlistKey, 0, 0);
+        assertThat(firstUser.iterator().next()).isEqualTo("101");
+
+        enrollmentService.enrollmentCancelled(cancelUserId, cancelEnrollmentId);
+
+        Enrollment cancelledEnrollment = enrollmentRepository.findById(cancelEnrollmentId).orElseThrow();
+        assertThat(cancelledEnrollment.getStatus()).isEqualTo(EnrollmentStatus.CANCELLED);
+
+        assertThat(redisTemplate.opsForZSet().zCard(waitlistKey)).isEqualTo(9);
+
+        Double waitUserScore = redisTemplate.opsForZSet().score(waitlistKey, "101");
+        assertThat(waitUserScore).isNull();
+
+        String currentCapacity = redisTemplate.opsForValue().get(capacityKey);
+        assertThat(currentCapacity).isEqualTo("0");
+
+        Enrollment autoEnrolled = enrollmentRepository.findByUserIdAndCourseId(101L, courseId)
+                .orElseThrow(() -> new AssertionError("대기열 1번 유저의 수강 신청 데이터가 생성되지 않았습니다."));
+
+        assertThat(autoEnrolled.getStatus()).isEqualTo(EnrollmentStatus.PENDING);
     }
 }
