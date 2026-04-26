@@ -51,17 +51,12 @@ public class EnrollmentWaitListHandler {
             }
             enrollmentRepository.save(promoted);
 
-
             redisTemplate.opsForValue().decrement(capacityKey);
 
             log.info("대기열 유저 승격 성공: {}", nextUserId);
 
         } else {
             courseClient.subStudent(courseId);
-
-            redisTemplate.opsForValue().increment(capacityKey);
-
-            log.info("대기자 없음: 빈자리 발생 및 레디스 카운트 복구 완료");
         }
     }
 }

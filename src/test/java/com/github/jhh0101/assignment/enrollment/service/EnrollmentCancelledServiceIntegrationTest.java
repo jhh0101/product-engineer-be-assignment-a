@@ -138,11 +138,6 @@ public class EnrollmentCancelledServiceIntegrationTest {
         Long courseId = testEnrollment.getCourseId();
         String redisKey = "course:maxCapacity:" + courseId;
 
-        doAnswer(invocation -> {
-            eventPublisher.publishEvent(new EnrollmentCancelledEvent(courseId));
-            return null;
-        }).when(courseClient).subStudent(anyLong());
-
         enrollmentService.enrollmentCancelled(userId, enrollmentId);
 
         String remainingSeats = redisTemplate.opsForValue().get(redisKey);

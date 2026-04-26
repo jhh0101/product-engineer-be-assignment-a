@@ -68,8 +68,6 @@ public class CourseProviderImpl implements CourseEnrollmentClient {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COURSE_NOT_FOUND));
 
-        eventPublisher.publishEvent(new EnrollmentCancelledEvent(courseId));
-
         course.subStudent();
     }
 }
