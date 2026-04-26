@@ -30,6 +30,7 @@ public class EnrollmentWaitListHandler {
     public void handleEnrollmentCancelled(EnrollmentCancelledEvent event) {
         Long courseId = event.courseId();
         String waitlistKey = "course:waitlist:" + courseId;
+        String capacityKey = "course:maxCapacity:" + courseId;
 
         ZSetOperations.TypedTuple<String> nextUser = redisTemplate.opsForZSet().popMin(waitlistKey);
 
@@ -50,12 +51,14 @@ public class EnrollmentWaitListHandler {
             }
             enrollmentRepository.save(promoted);
 
-            log.info("대기열 유저 승격 성공: userId={}", nextUserId);
+
+            redisTemplate.opsForValue().decrement(capacityKey);
+
+            log.info("대기열 유저 승격 성공: {}", nextUserId);
 
         } else {
             courseClient.subStudent(courseId);
 
-            String capacityKey = "course:maxCapacity:" + courseId;
             redisTemplate.opsForValue().increment(capacityKey);
 
             log.info("대기자 없음: 빈자리 발생 및 레디스 카운트 복구 완료");

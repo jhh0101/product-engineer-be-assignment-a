@@ -107,12 +107,12 @@ public class EnrollmentService {
             throw new CustomException(ErrorCode.REFUND_PERIOD_EXPIRED);
         }
 
+        UserInfoResponse userResponse = userClient.getUserResponse(userId);
+        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
+
         enrollment.enrollmentCancelled();
 
         eventPublisher.publishEvent(new EnrollmentCancelledEvent(enrollment.getCourseId()));
-
-        UserInfoResponse userResponse = userClient.getUserResponse(userId);
-        CourseEnrollmentResponse courseResponse = courseClient.getCourseResponse(enrollment.getCourseId());
 
         return EnrollmentCancelledResponse.from(enrollment, userResponse, courseResponse);
     }

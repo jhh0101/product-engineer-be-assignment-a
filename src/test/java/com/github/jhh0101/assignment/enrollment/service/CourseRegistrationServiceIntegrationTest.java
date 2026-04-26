@@ -1,6 +1,7 @@
 package com.github.jhh0101.assignment.enrollment.service;
 
 import com.github.jhh0101.assignment.config.TestRedisConfig;
+import com.github.jhh0101.assignment.domain.course.client.user.UserCourseClient;
 import com.github.jhh0101.assignment.domain.course.entity.CourseStatus;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
@@ -49,6 +50,9 @@ public class CourseRegistrationServiceIntegrationTest {
 
     @MockitoBean
     private UserEnrollmentClient userClient;
+
+    @MockitoBean
+    private UserCourseClient UserCourseClient;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -100,6 +104,53 @@ public class CourseRegistrationServiceIntegrationTest {
         assertThat(failCount.get()).isEqualTo(totalRequests - 30);
 
         verify(courseClient, times(30)).addStudent(courseId);
+    }
+
+    @Test
+    @DisplayName("수강 신청 성공 동시성 테스트 - 인원 초과된 강의에 100명이 동시에 신청하면 신청자만큼 대기열 저장")
+    void courseRegistration_concurrency_shouldSucceedExactlyUpToWaitList() throws InterruptedException {
+        Long courseId = 1L;
+
+        given(courseClient.getCourseResponse(courseId))
+                .willReturn(CourseEnrollmentResponse.builder().maxCapacity(30).status(CourseStatus.OPEN).build());
+
+        int totalRequests = 100;
+
+        redisTemplate.opsForValue().set("course:maxCapacity:" + courseId, String.valueOf(0));
+
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch latch = new CountDownLatch(totalRequests);
+
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger failCount = new AtomicInteger();
+
+        given(userClient.getUserResponse(anyLong()))
+                .willReturn(UserInfoResponse.builder().name("테스트유저").build());
+
+        for (int i = 1; i <= totalRequests; i++) {
+            Long userId = (long) i;
+
+            executorService.submit(() -> {
+                try {
+                    enrollmentService.courseRegistration(userId, courseId);
+                    successCount.getAndIncrement();
+                } catch (Exception e) {
+                    failCount.getAndIncrement();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        Long waitListTotalCount = redisTemplate.opsForZSet().zCard("course:waitlist:" + courseId);
+
+        assertThat(successCount.get()).isEqualTo(0);
+        assertThat(failCount.get()).isEqualTo(100);
+        assertThat(waitListTotalCount).isEqualTo(100);
+
+        verify(courseClient, times(0)).addStudent(courseId);
     }
 
     @Test

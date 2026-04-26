@@ -24,7 +24,7 @@ public class CourseCapacityHandler {
 
         redisTemplate.opsForValue().set(key, String.valueOf(event.maxCapacity()));
 
-        log.info("Redis 세팅 완료! 강의 ID: courseId={}", event.courseId());
+        log.info("Redis 세팅 완료! 강의 ID: {}", event.courseId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -33,7 +33,7 @@ public class CourseCapacityHandler {
 
         redisTemplate.delete(key);
 
-        log.info("Redis 삭제 완료! 강의 ID: courseId={}", event.courseId());
+        log.info("Redis 삭제 완료! 강의 ID: {}", event.courseId());
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -43,6 +43,6 @@ public class CourseCapacityHandler {
         redisTemplate.opsForValue().increment(key);
         String maxCapacity = redisTemplate.opsForValue().get(key);
 
-        log.info("남은 신청 가능 수 : capacity={}", maxCapacity);
+        log.info("남은 신청 가능 수 : {}", maxCapacity);
     }
 }

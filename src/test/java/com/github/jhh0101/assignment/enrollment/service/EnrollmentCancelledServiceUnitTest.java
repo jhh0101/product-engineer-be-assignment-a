@@ -1,5 +1,6 @@
 package com.github.jhh0101.assignment.enrollment.service;
 
+import com.github.jhh0101.assignment.domain.course.dto.EnrollmentCancelledEvent;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.CourseEnrollmentClient;
 import com.github.jhh0101.assignment.domain.enrollment.client.course.dto.CourseEnrollmentResponse;
 import com.github.jhh0101.assignment.domain.enrollment.client.user.UserEnrollmentClient;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,6 +43,9 @@ public class EnrollmentCancelledServiceUnitTest {
 
     @Mock
     private UserEnrollmentClient userClient;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private Enrollment testEnrollment;
 
@@ -89,7 +94,7 @@ public class EnrollmentCancelledServiceUnitTest {
         verify(enrollmentRepository, times(1)).findById(1L);
         verify(userClient, times(1)).getUserResponse(anyLong());
         verify(courseClient, times(1)).getCourseResponse(anyLong());
-        verify(courseClient, times(1)).subStudent(anyLong());
+        verify(eventPublisher, times(1)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(1)).enrollmentCancelled();
     }
 
@@ -106,7 +111,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.ENROLLMENT_NOT_FOUND);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
     }
 
     @Test
@@ -127,7 +132,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.USER_NOT_FOUND);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(0)).enrollmentCancelled();
     }
 
@@ -150,7 +155,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.COURSE_NOT_FOUND);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(0)).enrollmentCancelled();
     }
 
@@ -169,7 +174,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.USER_FORBIDDEN_ACCESS);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(0)).enrollmentCancelled();
     }
 
@@ -198,7 +203,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.ENROLLMENT_IS_CANCELLED);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(0)).enrollmentCancelled();
     }
 
@@ -227,7 +232,7 @@ public class EnrollmentCancelledServiceUnitTest {
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.REFUND_PERIOD_EXPIRED);
 
-        verify(courseClient, times(0)).subStudent(enrollmentId);
+        verify(eventPublisher, times(0)).publishEvent(any(EnrollmentCancelledEvent.class));
         verify(spyEnrollment, times(0)).enrollmentCancelled();
     }
 
